@@ -1,0 +1,3 @@
+[submodule "adarkroom"]
+	path = adarkroom
+	url = git@github.com:doublespeakgames/adarkroom.git
