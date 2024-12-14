@@ -19,7 +19,7 @@ export const manifest = setupManifest({
     main: {
       source: {
         dockerBuild: {
-          dockerfile: '../Dockerfile',
+          dockerfile: './Dockerfile',
           workdir: '.',
         },
       },
