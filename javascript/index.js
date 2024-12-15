@@ -23723,7 +23723,7 @@ exports.main = sdk_1.sdk.setupMain(async ({ effects, started }) => {
         mounts: sdk_1.sdk.Mounts.of().addVolume('main', null, '/app/data', false), // Updated to match manifest.ts
         ready: {
             display: 'Web Interface',
-            fn: () => sdk_1.sdk.healthCheck.checkPortListening(effects, 8081, {
+            fn: () => sdk_1.sdk.healthCheck.checkWebUrl(effects, 'http://localhost:8081', {
                 successMessage: 'The web interface is ready',
                 errorMessage: 'The web interface is not ready',
             }),

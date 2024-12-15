@@ -31,7 +31,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     ready: {
       display: 'Web Interface',
       fn: () =>
-        sdk.healthCheck.checkPortListening(effects, 8081, {
+        sdk.healthCheck.checkWebUrl(effects, 'http://localhost:8081', {
           successMessage: 'The web interface is ready',
           errorMessage: 'The web interface is not ready',
         }),
