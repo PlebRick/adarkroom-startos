@@ -1,3 +1,3 @@
-[submodule "adarkroom"]
+git@github.com:PlebRick/adarkroom.git[submodule "adarkroom"]
 	path = adarkroom
-	url = git@github.com:doublespeakgames/adarkroom.git
+	url = git@github.com:PlebRick/adarkroom.git
