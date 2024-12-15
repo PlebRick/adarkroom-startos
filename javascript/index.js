@@ -23636,9 +23636,15 @@ const interfaces_1 = __nccwpck_require__(9863);
 const versions_1 = __nccwpck_require__(3717);
 const actions_1 = __nccwpck_require__(1151);
 // **** Install ****
-const install = sdk_1.sdk.setupInstall(async ({ effects }) => { });
+const install = sdk_1.sdk.setupInstall(async ({ effects }) => {
+    console.info('Running installation steps...');
+    // No explicit file system operations needed here
+});
 // **** Uninstall ****
-const uninstall = sdk_1.sdk.setupUninstall(async ({ effects }) => { });
+const uninstall = sdk_1.sdk.setupUninstall(async ({ effects }) => {
+    console.info('Running uninstallation steps...');
+    // No explicit file system operations needed here
+});
 /**
  * Plumbing. DO NOT EDIT.
  */
@@ -23657,22 +23663,25 @@ exports.setInterfaces = void 0;
 const sdk_1 = __nccwpck_require__(5811);
 const utils_1 = __nccwpck_require__(1225);
 exports.setInterfaces = sdk_1.sdk.setupInterfaces(async ({ effects }) => {
+    // Bind the web interface to the correct port
     const uiMulti = sdk_1.sdk.host.multi(effects, 'ui-multi');
     const uiMultiOrigin = await uiMulti.bindPort(utils_1.uiPort, {
-        protocol: 'http',
+        protocol: 'http', // Application uses HTTP
     });
+    // Define the Web UI interface
     const ui = sdk_1.sdk.createInterface(effects, {
         name: 'Web UI',
         id: 'ui',
-        description: 'The web interface of A Dark Room',
+        description: 'The primary web interface for A Dark Room',
         type: 'ui',
-        hasPrimary: false,
+        hasPrimary: true, // Set to true if this is the service's main interface
         masked: false,
         schemeOverride: null,
         username: null,
-        path: '',
+        path: '', // Root path
         search: {},
     });
+    // Register and export the interface
     const uiReceipt = await uiMultiOrigin.export([ui]);
     return [uiReceipt];
 });
@@ -23688,7 +23697,6 @@ exports.setInterfaces = sdk_1.sdk.setupInterfaces(async ({ effects }) => {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.main = void 0;
 const sdk_1 = __nccwpck_require__(5811);
-const utils_1 = __nccwpck_require__(1225);
 exports.main = sdk_1.sdk.setupMain(async ({ effects, started }) => {
     /**
      * ======================== Setup (optional) ========================
@@ -23711,11 +23719,11 @@ exports.main = sdk_1.sdk.setupMain(async ({ effects, started }) => {
      */
     return sdk_1.sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
         image: { id: 'main' },
-        command: ['node', 'dev-server.js'],
-        mounts: sdk_1.sdk.Mounts.of().addVolume('main', null, '/', false),
+        command: ['node', 'dev-server.js'], // Matches application entry point
+        mounts: sdk_1.sdk.Mounts.of().addVolume('main', null, '/app/data', false), // Updated to match manifest.ts
         ready: {
             display: 'Web Interface',
-            fn: () => sdk_1.sdk.healthCheck.checkPortListening(effects, utils_1.uiPort, {
+            fn: () => sdk_1.sdk.healthCheck.checkPortListening(effects, 8081, {
                 successMessage: 'The web interface is ready',
                 errorMessage: 'The web interface is not ready',
             }),
@@ -23749,12 +23757,17 @@ exports.manifest = (0, start_sdk_1.setupManifest)({
         long: 'A Dark Room is a minimalist text adventure game for your browser',
     },
     assets: [],
-    volumes: ['main'],
+    volumes: ['main'], // Only volume IDs are listed here
+    store: {
+        main: {
+            path: '/app/data', // Define where the 'main' volume is mounted inside the container
+        },
+    },
     images: {
         main: {
             source: {
                 dockerBuild: {
-                    dockerfile: '../Dockerfile',
+                    dockerfile: './Dockerfile',
                     workdir: '.',
                 },
             },
@@ -23762,10 +23775,55 @@ exports.manifest = (0, start_sdk_1.setupManifest)({
             emulateMissingAs: 'aarch64',
         },
     },
-    hardwareRequirements: {},
-    alerts: {},
+    hardwareRequirements: {
+        ram: 134217728, // 128Mi in bytes
+        arch: ['x86_64', 'aarch64'], // Supported architectures
+    },
+    healthChecks: {
+        'check-service': {
+            description: 'Check if the service is running',
+            interval: 60, // Check every 60 seconds
+            script: ['curl', '-f', 'http://localhost:8081'],
+        },
+    },
     dependencies: {},
+    exposedPorts: [8081],
 });
+/*
+import { setupManifest } from '@start9labs/start-sdk'
+
+export const manifest = setupManifest({
+  id: 'adarkroom',
+  title: 'A Dark Room',
+  license: 'mozilla',
+  wrapperRepo: 'https://github.com/elvece/adarkroom',
+  upstreamRepo: 'https://github.com/doublespeakgames/adarkroom',
+  supportSite: 'https://github.com/doublespeakgames/adarkroom/issues',
+  marketingSite: 'https://adarkroom.doublespeakgames.com/',
+  donationUrl: null,
+  description: {
+    short: 'A minimalist text adventure game for your browser',
+    long: 'A Dark Room is a minimalist text adventure game for your browser',
+  },
+  assets: [],
+  volumes: ['main'],
+  images: {
+    main: {
+      source: {
+        dockerBuild: {
+          dockerfile: './Dockerfile',
+          workdir: '.',
+        },
+      },
+      arch: ['x86_64', 'aarch64'],
+      emulateMissingAs: 'aarch64',
+    },
+  },
+  hardwareRequirements: {},
+  alerts: {},
+  dependencies: {},
+})
+*/ 
 
 
 /***/ }),
@@ -23816,7 +23874,7 @@ exports.exposedStore = (0, start_sdk_1.setupExposeStore)((pathBuilder) => [
 // throughout the package codebase. This file will be unnecessary for many packages.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uiPort = void 0;
-exports.uiPort = 8080;
+exports.uiPort = 8081;
 
 
 /***/ }),

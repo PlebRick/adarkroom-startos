@@ -26,12 +26,12 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    */
   return sdk.Daemons.of(effects, started, healthReceipts).addDaemon('primary', {
     image: { id: 'main' },
-    command: ['node', 'dev-server.js'],
-    mounts: sdk.Mounts.of().addVolume('main', null, '/', false),
+    command: ['node', 'dev-server.js'], // Matches application entry point
+    mounts: sdk.Mounts.of().addVolume('main', null, '/app/data', false), // Updated to match manifest.ts
     ready: {
       display: 'Web Interface',
       fn: () =>
-        sdk.healthCheck.checkPortListening(effects, uiPort, {
+        sdk.healthCheck.checkPortListening(effects, 8081, {
           successMessage: 'The web interface is ready',
           errorMessage: 'The web interface is not ready',
         }),

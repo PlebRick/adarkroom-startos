@@ -2,23 +2,27 @@ import { sdk } from './sdk'
 import { uiPort } from './utils'
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
+  // Bind the web interface to the correct port
   const uiMulti = sdk.host.multi(effects, 'ui-multi')
   const uiMultiOrigin = await uiMulti.bindPort(uiPort, {
-    protocol: 'http',
+    protocol: 'http', // Application uses HTTP
   })
+
+  // Define the Web UI interface
   const ui = sdk.createInterface(effects, {
     name: 'Web UI',
     id: 'ui',
-    description: 'The web interface of A Dark Room',
+    description: 'The primary web interface for A Dark Room',
     type: 'ui',
-    hasPrimary: false,
+    hasPrimary: true, // Set to true if this is the service's main interface
     masked: false,
     schemeOverride: null,
     username: null,
-    path: '',
+    path: '', // Root path
     search: {},
   })
 
+  // Register and export the interface
   const uiReceipt = await uiMultiOrigin.export([ui])
 
   return [uiReceipt]

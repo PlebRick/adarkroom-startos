@@ -1,7 +1,7 @@
 PACKAGE_ID := adarkroom
 
 # Phony targets
-.PHONY: all clean install
+.PHONY: all clean install docker-build verify
 
 # Default target
 all: ${PACKAGE_ID}.s9pk
@@ -24,6 +24,15 @@ clean:
 	rm -rf ${PACKAGE_ID}.s9pk
 	rm -rf javascript
 	rm -rf node_modules
+	docker builder prune -f  # Clean up Docker build cache
+
+# Docker build target
+docker-build:
+	docker build -f Dockerfile .
+
+# Verify the .s9pk file
+verify:
+	start-cli s9pk verify ${PACKAGE_ID}.s9pk
 
 # Install target
 install:
